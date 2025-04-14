@@ -8,7 +8,7 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-		domains: ['cdn.sanity.io'],
+		domains: ['cdn.sanity.io', 'image.mux.com'],
 	},
 };
 

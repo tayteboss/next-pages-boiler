@@ -1,8 +1,8 @@
-const formatHTML = (string: string): string => {
-	const formattedString: string = string
-		? `<p>${string.replace(/\n/g, '<br />')}</p>`
-		: '';
-	return formattedString;
+const formatHTML = (string: string, tag: string = "p"): string => {
+  const formattedString: string = string
+    ? `<${tag}>${string.replace(/\n/g, "<br />")}</${tag}>`
+    : "";
+  return formattedString;
 };
 
 export default formatHTML;
