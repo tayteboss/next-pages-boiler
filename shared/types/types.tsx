@@ -1,12 +1,10 @@
 export type MediaType = {
-  media: {
-    mediaType: "video" | "image";
-    video: { asset: { playbackId: string } };
-    image: { asset: { url: string; metadata: { lqip: string } }; alt: string };
-    mobileImage?: { asset: { url: string; metadata: { lqip: string } } };
-    mobileVideo?: { asset: { playbackId: string } };
-    caption?: string;
-  };
+  mediaType: "video" | "image";
+  video: { asset: { playbackId: string } };
+  image: { asset: { url: string; metadata: { lqip: string } }; alt: string };
+  mobileImage?: { asset: { url: string; metadata: { lqip: string } } };
+  mobileVideo?: { asset: { playbackId: string } };
+  caption?: string;
 };
 
 export type TransitionsType = {
