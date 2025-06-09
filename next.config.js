@@ -12,12 +12,26 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    domains: ['cdn.sanity.io', 'image.mux.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'cdn.sanity.io',
+        pathname: '/images/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'image.mux.com',
+        pathname: '/**',
+      },
+    ],
     loader: 'custom',
-    loaderFile: './lib/sanityImageLoader.ts', 
+    loaderFile: './lib/sanityImageLoader.ts',
   },
   compiler: {
-    styledComponents: true,
+    styledComponents: {
+      ssr: true,
+      displayName: true,
+    },
   },
 };
 

@@ -13,6 +13,7 @@ type Props = {
   sizes?: undefined | string;
   alt?: string;
   lazyLoad?: boolean;
+  minResolution?: undefined | "2160p" | "1440p" | "1080p" | "720p" | "480p";
 };
 
 const MediaStack = (props: Props) => {
@@ -23,6 +24,7 @@ const MediaStack = (props: Props) => {
     sizes = undefined,
     alt,
     lazyLoad = false,
+    minResolution = "2160p",
   } = props ?? {};
 
   // sizes="(max-width: 768px) 38vw, (max-width: 1024px) 20vw, 15vw"
@@ -44,6 +46,7 @@ const MediaStack = (props: Props) => {
           isPriority={isPriority}
           noAnimation={noAnimation}
           lazyLoad={lazyLoad}
+          minResolution={minResolution}
         />
       )}
       {!useVideo && (

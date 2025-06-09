@@ -1,5 +1,4 @@
-// ./sanityImageLoader.js
-// Or, if using TypeScript: ./sanityImageLoader.ts
+// ./sanityImageLoader.ts
 
 // IMPORTANT: Replace these with your actual Sanity project ID and dataset
 // You can find these in your Sanity project management console (sanity.io/manage)
@@ -7,11 +6,11 @@ const SANITY_PROJECT_ID = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
 const SANITY_DATASET = "production";
 
 /**
- * Sanity Image Loader for Next.js Image component.
+ * Flexible Image Loader for Next.js Image component that handles both Sanity and Mux URLs.
  * @param {{ src: string, width: number, quality?: number }} params
- * @returns {string} The complete Sanity image URL with transformation parameters.
+ * @returns {string} The complete image URL with transformation parameters.
  */
-export default function sanityImageLoader({
+export default function imageLoader({
   src,
   width,
   quality,
@@ -20,29 +19,33 @@ export default function sanityImageLoader({
   width: number;
   quality?: number;
 }): string {
-  // The `src` from Sanity already contains the base URL, project ID, dataset, and asset info.
-  // Example src: https://cdn.sanity.io/images/e1i1kimz/production/d357bf4ab55b88c1cb7dc3c980d18c9349533d82-2944x1776.jpg
   const url = new URL(src);
 
-  // Ensure it's a cdn.sanity.io URL, though remotePatterns in next.config.js should also enforce this.
-  if (url.hostname !== "cdn.sanity.io") {
-    // Not a Sanity CDN image, return the original src or handle as an error
-    // For safety, returning original src, but ideally, this loader should only process Sanity images.
-    console.warn(`Sanity Image Loader received a non-Sanity CDN URL: ${src}`);
-    return src;
+  // Handle Sanity CDN URLs
+  if (url.hostname === "cdn.sanity.io") {
+    url.searchParams.set("auto", "format");
+    url.searchParams.set("fit", "max");
+    url.searchParams.set("w", width.toString());
+    if (quality) {
+      url.searchParams.set("q", quality.toString());
+    }
+    return url.toString();
   }
 
-  // Apply transformations
-  url.searchParams.set("auto", "format"); // Automatically select best format (WebP, AVIF)
-  url.searchParams.set("fit", "max"); // Ensure image fits within dimensions, don't upscale
-  url.searchParams.set("w", width.toString());
-
-  if (quality) {
-    url.searchParams.set("q", quality.toString());
+  // Handle Mux CDN URLs
+  if (url.hostname === "image.mux.com") {
+    // Mux URLs already have width and height parameters
+    // We'll update the width parameter if it exists
+    if (url.searchParams.has("width")) {
+      url.searchParams.set("width", width.toString());
+    }
+    if (quality) {
+      url.searchParams.set("quality", quality.toString());
+    }
+    return url.toString();
   }
 
-  // Add other desired default parameters here, for example:
-  // url.searchParams.set('crop', 'entropy'); // if you want entropy cropping by default
-
-  return url.toString();
+  // For any other URLs, return as is
+  console.warn(`Image Loader received an unsupported CDN URL: ${src}`);
+  return src;
 }

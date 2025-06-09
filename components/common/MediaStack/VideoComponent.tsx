@@ -26,15 +26,19 @@ const InnerBlur = styled(motion.div)`
   inset: 0;
   height: 100%;
   width: 100%;
-  z-index: 1;
+  z-index: 5;
+  filter: blur(10px);
+  background-color: rgba(0, 0, 0, 0.1);
+  transform-origin: center;
 `;
 
-const Inner = styled.div`
+const Inner = styled(motion.div)`
   position: absolute;
   inset: 0;
   height: 100%;
   width: 100%;
   z-index: 1;
+  transform-origin: center;
 `;
 
 const wrapperVariants = {
@@ -43,7 +47,7 @@ const wrapperVariants = {
     filter: "blur(10px)",
     scale: 1.05,
     transition: {
-      duration: 2,
+      duration: 1,
       ease: "easeInOut",
     },
   },
@@ -52,9 +56,25 @@ const wrapperVariants = {
     filter: "blur(0px)",
     scale: 1,
     transition: {
-      duration: 2,
+      duration: 1.5,
       ease: "easeInOut",
-      delay: 0.2,
+    },
+  },
+};
+
+const innerVariants = {
+  hidden: {
+    scale: 1.05,
+    transition: {
+      duration: 1,
+      ease: "easeInOut",
+    },
+  },
+  visible: {
+    scale: 1,
+    transition: {
+      duration: 1.5,
+      ease: "easeInOut",
     },
   },
 };
@@ -65,13 +85,20 @@ type Props = {
   isPriority: boolean;
   noAnimation?: boolean;
   lazyLoad?: boolean;
+  minResolution?: undefined | "2160p" | "1440p" | "1080p" | "720p" | "480p";
 };
 
 const VideoComponent = (props: Props) => {
-  const { data, inView, isPriority, noAnimation, lazyLoad } = props;
+  const { data, inView, isPriority, noAnimation, lazyLoad, minResolution } =
+    props;
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
 
   const playbackId = data?.video?.asset?.playbackId;
   const posterUrl = `https://image.mux.com/${data?.video?.asset?.playbackId}/thumbnail.png?width=214&height=121&time=1`;
+
+  const handleVideoLoad = () => {
+    setIsVideoLoaded(true);
+  };
 
   return (
     <VideoComponentWrapper className="media-wrapper">
@@ -81,7 +108,7 @@ const VideoComponent = (props: Props) => {
             <InnerBlur
               variants={wrapperVariants}
               initial="hidden"
-              animate="visible"
+              animate={isVideoLoaded ? "visible" : "hidden"}
               exit="hidden"
             >
               <Image
@@ -89,14 +116,18 @@ const VideoComponent = (props: Props) => {
                 alt={""}
                 fill
                 priority={isPriority}
-                sizes="50vw"
+                sizes="25vw"
               />
             </InnerBlur>
           )}
         </AnimatePresence>
       )}
       {playbackId && (
-        <Inner>
+        <Inner
+          variants={innerVariants}
+          initial="hidden"
+          animate={isVideoLoaded ? "visible" : "hidden"}
+        >
           <MuxPlayer
             streamType="on-demand"
             playbackId={playbackId}
@@ -108,7 +139,8 @@ const VideoComponent = (props: Props) => {
             muted
             playsInline={true}
             poster={`${posterUrl}`}
-            minResolution="2160p"
+            minResolution={minResolution}
+            onLoadedData={handleVideoLoad}
           />
         </Inner>
       )}
