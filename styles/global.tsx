@@ -18,6 +18,8 @@ export const GlobalStyles = createGlobalStyle`
 	* {
 		-webkit-font-smoothing: antialiased;
 		-moz-osx-font-smoothing: grayscale;
+		text-rendering: optimizeLegibility;
+		-webkit-text-size-adjust: 100%;
 		box-sizing: border-box;
 		margin: 0;
 		padding: 0;
