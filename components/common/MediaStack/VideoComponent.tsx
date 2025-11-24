@@ -4,6 +4,7 @@ import { MediaType } from "../../../shared/types/types";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { useState } from "react";
+import useWindowDimensions from "../../../hooks/useWindowDimensions";
 
 const VideoComponentWrapper = styled.div`
   position: relative;
@@ -41,9 +42,8 @@ const Inner = styled(motion.div)`
   transform-origin: center;
 `;
 
-const wrapperVariants = {
+const wrapperVariants: any = {
   hidden: {
-    opacity: 1,
     filter: "blur(10px)",
     scale: 1.05,
     transition: {
@@ -52,7 +52,6 @@ const wrapperVariants = {
     },
   },
   visible: {
-    opacity: 0,
     filter: "blur(0px)",
     scale: 1,
     transition: {
@@ -62,7 +61,7 @@ const wrapperVariants = {
   },
 };
 
-const innerVariants = {
+const innerVariants: any = {
   hidden: {
     scale: 1.05,
     transition: {
@@ -81,19 +80,33 @@ const innerVariants = {
 
 type Props = {
   data: MediaType;
+  useMobileData?: MediaType;
   inView: boolean;
   isPriority: boolean;
-  noAnimation?: boolean;
+  noFadeInAnimation?: boolean;
   lazyLoad?: boolean;
   minResolution?: undefined | "2160p" | "1440p" | "1080p" | "720p" | "480p";
+  aspectPadding?: string;
 };
 
 const VideoComponent = (props: Props) => {
-  const { data, inView, isPriority, noAnimation, lazyLoad, minResolution } =
-    props;
+  const {
+    data,
+    useMobileData,
+    inView,
+    isPriority,
+    noFadeInAnimation,
+    lazyLoad,
+    minResolution,
+    aspectPadding,
+  } = props;
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
 
-  const playbackId = data?.video?.asset?.playbackId;
+  const isMobile = useWindowDimensions().width < 768 && !!useMobileData;
+
+  const playbackId = isMobile
+    ? useMobileData?.video?.asset?.playbackId
+    : data?.video?.asset?.playbackId;
   const posterUrl = `https://image.mux.com/${data?.video?.asset?.playbackId}/thumbnail.png?width=214&height=121&time=1`;
 
   const handleVideoLoad = () => {
@@ -101,8 +114,11 @@ const VideoComponent = (props: Props) => {
   };
 
   return (
-    <VideoComponentWrapper className="media-wrapper">
-      {!noAnimation && posterUrl && (
+    <VideoComponentWrapper
+      className="media-wrapper"
+      style={aspectPadding ? { paddingTop: aspectPadding } : undefined}
+    >
+      {!noFadeInAnimation && posterUrl && (
         <AnimatePresence initial={false}>
           {inView && playbackId && (
             <InnerBlur
