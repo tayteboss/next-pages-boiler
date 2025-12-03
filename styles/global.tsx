@@ -39,7 +39,7 @@ export const GlobalStyles = createGlobalStyle`
 	}
 
 	html {
-		background: var(--colour-white);
+		background: var(--colour-black);
 		font-size: 16px;
 
 		&.no-scroll {
@@ -153,8 +153,7 @@ export const GlobalStyles = createGlobalStyle`
 	a,
 	button,
 	div {
-		font-size: ${pxToRem(16)};
-		line-height: ${pxToRem(16)};
+		font-family: var(--font-default);
 	}
 
 	mux-player {
