@@ -92,18 +92,74 @@ type Props = {
 const ROWS = 2;
 const COLS = 12;
 const TOTAL_STEPS = ROWS * COLS;
-const BPM = 160;
+const BPM = 165;
 
 const SUPPORTED_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789.!?";
-const SAMPLE_KEYS = ["hihat", "kick", "snare", "perc1", "perc2"] as const;
+const SAMPLE_KEYS = [
+  "hihat",
+  "kick",
+  "kick2",
+  "snare",
+  "perc1",
+  "perc2",
+] as const;
 
 type SampleKey = (typeof SAMPLE_KEYS)[number];
 
+const KICK_SYMBOLS: string[] = [".", "!", "?"];
+
+const KICK_FILES = [
+  "/audio/kicks/kick-1.wav",
+  "/audio/kicks/kick-2.wav",
+  "/audio/kicks/kick-3.wav",
+  "/audio/kicks/kick-4.wav",
+  "/audio/kicks/kick-5.wav",
+] as const;
+
+const SNARE_FILES = [
+  "/audio/snares/snare-1.wav",
+  "/audio/snares/snare-2.wav",
+  "/audio/snares/snare-3.wav",
+  "/audio/snares/snare-4.wav",
+  "/audio/snares/snare-5.wav",
+] as const;
+
+const SHUFFLE_FILES = [
+  "/audio/shuffles/shuffle-1.wav",
+  "/audio/shuffles/shuffle-2.wav",
+  "/audio/shuffles/shuffle-3.wav",
+  "/audio/shuffles/shuffle-4.wav",
+] as const;
+
+const RIM_FILES = [
+  "/audio/rims/rim-1.wav",
+  "/audio/rims/rim-2.wav",
+  "/audio/rims/rim-3.wav",
+  "/audio/rims/rim-4.wav",
+  "/audio/rims/rim-5.wav",
+] as const;
+
+const getRandomArrayItem = <T,>(items: readonly T[]): T =>
+  items[Math.floor(Math.random() * items.length)];
+
 const getSampleKeyForChar = (char: string): SampleKey | undefined => {
+  // Punctuation that should explicitly be kicks
+  if (KICK_SYMBOLS.includes(char)) {
+    // Always map full stop to kick2 for a distinct accent
+    if (char === ".") {
+      return "kick2";
+    }
+
+    // Other kick symbols (like "!" and "?") alternate between kick variants
+    return Math.random() < 0.5 ? "kick" : "kick2";
+  }
+
   const index = SUPPORTED_CHARS.indexOf(char);
   if (index === -1) return undefined;
 
   const mappedIndex = index % SAMPLE_KEYS.length;
+  // For non-symbol characters, including letters, allow natural distribution
+  // across all sample types (including kicks) via modular mapping.
   return SAMPLE_KEYS[mappedIndex];
 };
 
@@ -115,7 +171,7 @@ const Page = (props: Props) => {
   const [hasAudioStarted, setHasAudioStarted] = useState<boolean>(false);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const playersRef = useRef<Partial<Record<SampleKey, Tone.Player>>>({});
+  const playersRef = useRef<Partial<Record<SampleKey, Tone.Player[]>>>({});
   const ambientPlayerRef = useRef<Tone.Player | null>(null);
   const currentStepRef = useRef<number>(-1);
   const typedCharsRef = useRef<string[]>([]);
@@ -128,17 +184,24 @@ const Page = (props: Props) => {
 
   // initialise players once on client
   useEffect(() => {
-    const players: Record<SampleKey, Tone.Player> = {
-      hihat: new Tone.Player("/audio/hat-1.wav").toDestination(),
-      kick: new Tone.Player("/audio/kick-2.wav").toDestination(),
-      snare: new Tone.Player("/audio/snare-1.wav").toDestination(),
-      perc1: new Tone.Player("/audio/snare-2.wav").toDestination(),
-      perc2: new Tone.Player("/audio/snare-3.wav").toDestination(),
+    const players: Record<SampleKey, Tone.Player[]> = {
+      // Use shuffles as the main high-frequency layer / hats
+      hihat: SHUFFLE_FILES.map((path) => new Tone.Player(path).toDestination()),
+      // Two distinct kick flavours, both drawn from the kicks folder
+      kick: KICK_FILES.map((path) => new Tone.Player(path).toDestination()),
+      kick2: KICK_FILES.map((path) => new Tone.Player(path).toDestination()),
+      // Snare on the classic backbeat
+      snare: SNARE_FILES.map((path) => new Tone.Player(path).toDestination()),
+      // Extra percussive colours: rims and additional shuffles
+      perc1: RIM_FILES.map((path) => new Tone.Player(path).toDestination()),
+      perc2: SHUFFLE_FILES.map((path) => new Tone.Player(path).toDestination()),
     };
 
     // turn drums/percs down a bit
-    Object.values(players).forEach((player) => {
-      player.volume.value = -9;
+    Object.values(players).forEach((family) => {
+      family.forEach((player) => {
+        player.volume.value = -1;
+      });
     });
 
     playersRef.current = players;
@@ -154,8 +217,10 @@ const Page = (props: Props) => {
     }
 
     return () => {
-      Object.values(playersRef.current).forEach((player) => {
-        player.dispose();
+      Object.values(playersRef.current).forEach((family) => {
+        family?.forEach((player) => {
+          player.dispose();
+        });
       });
 
       if (ambientPlayerRef.current) {
@@ -195,7 +260,9 @@ const Page = (props: Props) => {
       }
 
       const sampleKey = getSampleKeyForChar(charForStep);
-      const player = sampleKey ? playersRef.current[sampleKey] : undefined;
+      const family = sampleKey ? playersRef.current[sampleKey] : undefined;
+      const player =
+        family && family.length ? getRandomArrayItem(family) : undefined;
 
       if (player && hasAudioStartedRef.current) {
         player.start();

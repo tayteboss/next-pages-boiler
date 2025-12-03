@@ -4,7 +4,7 @@ export const theme = {
     white: "#F2F3EF",
   },
   fonts: {
-    default: "terminal-grotesque",
+    default: "abc-connect-mono",
   },
   mediaBreakpoints: {
     desktop: "(min-width: 1680px)",

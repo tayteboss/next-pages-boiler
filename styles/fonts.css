@@ -9,3 +9,9 @@
 	src: url('/fonts/terminal-grotesque.ttf') format('truetype');
 	font-display: swap;
 }
+
+@font-face {
+	font-family: 'abc-connect-mono';
+	src: url('/fonts/abc-connect-mono.otf') format('opentype');
+	font-display: swap;
+}
