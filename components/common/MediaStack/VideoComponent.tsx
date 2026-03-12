@@ -115,7 +115,7 @@ const VideoComponent = (props: Props) => {
 
   return (
     <VideoComponentWrapper
-      className="media-wrapper"
+      className="media-stack"
       style={aspectPadding ? { paddingTop: aspectPadding } : undefined}
     >
       {!noFadeInAnimation && posterUrl && (

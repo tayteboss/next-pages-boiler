@@ -3,6 +3,7 @@ import { useInView } from "react-intersection-observer";
 import ImageComponent from "./ImageComponent";
 import VideoComponent from "./VideoComponent";
 import { MediaType } from "../../../shared/types/types";
+import getAspectPadding from "../../../utils/getAspectPadding";
 
 const MediaStackWrapper = styled.div`
   width: 100%;
@@ -57,7 +58,9 @@ const MediaStack = (props: Props) => {
           noFadeInAnimation={noFadeInAnimation}
           lazyLoad={lazyLoad}
           minResolution={minResolution}
-          aspectPadding={aspectPadding}
+          aspectPadding={getAspectPadding(
+            data?.image?.asset?.metadata?.dimensions,
+          )}
         />
       )}
       {!useVideo && (
@@ -71,7 +74,9 @@ const MediaStack = (props: Props) => {
           alt={alt}
           lazyLoad={lazyLoad}
           useImageParallax={useImageParallax}
-          aspectPadding={aspectPadding}
+          aspectPadding={getAspectPadding(
+            data?.image?.asset?.metadata?.dimensions,
+          )}
         />
       )}
     </MediaStackWrapper>

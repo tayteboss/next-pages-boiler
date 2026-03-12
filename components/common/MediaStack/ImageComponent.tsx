@@ -179,7 +179,7 @@ const ImageComponent = (props: Props) => {
     return (
       <ImageComponentWrapper
         ref={containerRef}
-        className="media-wrapper"
+        className="media-stack"
         style={aspectPadding ? { paddingTop: aspectPadding } : undefined}
       >
         {imageUrl &&
@@ -239,7 +239,7 @@ const ImageComponent = (props: Props) => {
   return (
     <ImageComponentWrapper
       ref={containerRef}
-      className="media-wrapper"
+      className="media-stack"
       style={aspectPadding ? { paddingTop: aspectPadding } : undefined}
     >
       <AnimatePresence>
