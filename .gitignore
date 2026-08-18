@@ -12,6 +12,7 @@
 # next.js
 /.next/
 /out/
+/public/robots.txt
 
 # production
 /build
