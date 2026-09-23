@@ -5,7 +5,8 @@ export const mediaString = `
 		asset-> {
 			url,
 			metadata {
-				lqip
+				lqip,
+				dimensions { aspectRatio, width, height }
 			}
 		},
 		alt
@@ -13,13 +14,15 @@ export const mediaString = `
 	video {
 		asset-> {
 			playbackId,
+			data { aspect_ratio },
 		},
 	},
 	mobileImage {
 		asset-> {
 			url,
 			metadata {
-				lqip
+				lqip,
+				dimensions { aspectRatio, width, height }
 			}
 		},
 		alt
@@ -27,6 +30,7 @@ export const mediaString = `
 	mobileVideo {
 		asset-> {
 			playbackId,
+			data { aspect_ratio },
 		},
 	},
 `;
@@ -44,7 +48,7 @@ export const homePageQueryString = `
 `;
 
 export const workPageQueryString = `
-	*[_type == "workPage"] {
+	*[_type == "workPage"][0] {
 		...,
 		seoTitle,
 		seoDescription,

@@ -1,35 +1,51 @@
-const sanityClient = require('@sanity/client');
-const fs = require('fs');
-
-const client = sanityClient.createClient({
-    projectId: 'xxx',
-    dataset: 'production',
-    useCdn: false,
-    apiVersion: '2023-10-24',
-});
+const { createClient } = require('@sanity/client');
+const fs = require('node:fs/promises');
+const path = require('node:path');
 
 const getSiteData = async () => {
-    const query = `
-        *[_type == "siteSettings"][0] {
-        ...
-        }
-    `;
+    const file = path.join(__dirname, '../json/siteSettings.json');
+    const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
+    const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET;
+    let data;
 
     try {
-        const data = await client.fetch(query);
-        const path = 'json';
-        const file = 'siteSettings.json';
-        const jsonData = JSON.stringify(data);
-
-        fs.writeFile(`${path}/${file}`, jsonData, 'utf8', () => {
-            console.log(`Wrote ${file} file.`);
-        });
-
-        return data;
+        if (projectId && dataset) {
+            const client = createClient({
+                projectId,
+                dataset,
+                token: process.env.SANITY_API_TOKEN || undefined,
+                useCdn: false,
+                apiVersion: '2024-09-24',
+                timeout: 10000,
+                maxRetries: 0,
+            });
+            data = await client.fetch('*[_type == "siteSettings"][0]');
+        } else {
+            console.warn('Sanity is not configured; using cached site settings or empty defaults.');
+        }
     } catch (error) {
-        console.error('Error fetching site data:', error);
-        return [];
+        console.warn('Could not fetch site settings; using cached settings or empty defaults:', error.message);
     }
+
+    if (data == null) {
+        try {
+            data = JSON.parse(await fs.readFile(file, 'utf8'));
+            if (data != null) return data;
+        } catch {
+            // A fresh checkout may not have a settings cache yet.
+        }
+        data = {};
+    }
+
+    try {
+        await fs.mkdir(path.dirname(file), { recursive: true });
+        await fs.writeFile(file, JSON.stringify(data), 'utf8');
+        console.log('Wrote siteSettings.json.');
+    } catch (error) {
+        console.warn('Could not write siteSettings.json; continuing the build:', error.message);
+    }
+
+    return data;
 };
 
 module.exports = {

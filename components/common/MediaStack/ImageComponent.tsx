@@ -10,7 +10,8 @@ import {
   easeOut,
 } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
-import useWindowDimensions from "../../../hooks/useWindowDimensions";
+import useMediaQuery from "../../../hooks/useMediaQuery";
+import getAspectPadding from "../../../utils/getAspectPadding";
 
 const ImageComponentWrapper = styled.div`
   position: relative;
@@ -106,14 +107,16 @@ const ImageComponent = (props: Props) => {
   // On desktop, the image should take up 15% of the viewport width
   // sizes="(max-width: 768px) 38vw, (max-width: 1024px) 20vw, 15vw"
 
-  const isMobile = useWindowDimensions().width < 768 && !!useMobileData;
+  const isMobile = useMediaQuery("(max-width: 767px)");
+  const selectedData = isMobile && useMobileData?.image?.asset?.url
+    ? useMobileData
+    : data;
+  const resolvedPadding = aspectPadding
+    ?? getAspectPadding(selectedData?.image?.asset?.metadata?.dimensions)
+    ?? "56.25%";
 
-  const imageUrl = isMobile
-    ? useMobileData?.image?.asset?.url
-    : data?.image?.asset?.url;
-  const blurDataURL = isMobile
-    ? useMobileData?.image?.asset?.metadata?.lqip
-    : data?.image?.asset?.metadata?.lqip;
+  const imageUrl = selectedData?.image?.asset?.url;
+  const blurDataURL = selectedData?.image?.asset?.metadata?.lqip;
   const imageAltText = alt || data?.image?.alt || "Visual media content";
   const loadingStrategy = isPriority
     ? "eager"
@@ -180,7 +183,7 @@ const ImageComponent = (props: Props) => {
       <ImageComponentWrapper
         ref={containerRef}
         className="media-stack"
-        style={aspectPadding ? { paddingTop: aspectPadding } : undefined}
+        style={{ paddingTop: resolvedPadding }}
       >
         {imageUrl &&
           (useImageParallax ? (
@@ -240,7 +243,7 @@ const ImageComponent = (props: Props) => {
     <ImageComponentWrapper
       ref={containerRef}
       className="media-stack"
-      style={aspectPadding ? { paddingTop: aspectPadding } : undefined}
+      style={{ paddingTop: resolvedPadding }}
     >
       <AnimatePresence>
         {shouldAnimateElements && blurDataURL && !isMainImageLoaded && (

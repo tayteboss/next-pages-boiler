@@ -6,15 +6,18 @@
     "dev": "next dev",
     "build": "npm run buildJson && next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit --incremental false",
+    "test": "node --test tests/*.test.cjs",
     "postbuild": "next-sitemap",
     "buildJson": "node scripts/buildJson.js"
   },
   "dependencies": {
     "@babel/runtime": "^7.26.10",
     "@mux/mux-player-react": "^2.9.1",
-    "@next/bundle-analyzer": "^16.0.3",
-    "@next/third-parties": "^16.0.3",
+    "@next/bundle-analyzer": "^16.3.6",
+    "@next/env": "^16.3.6",
+    "@next/third-parties": "^16.3.6",
     "@portabletext/react": "^3.1.0",
     "@sanity/client": "^6.21.3",
     "@studio-freight/react-lenis": "^0.0.47",
@@ -29,17 +32,22 @@
     "graphql": "^16.9.0",
     "graphql-request": "^7.1.0",
     "html-react-parser": "^5.1.12",
-    "js-cookie": "^3.0.5",
+    "js-cookie": "^3.0.8",
     "js-cookies": "^1.0.4",
     "lodash.throttle": "^4.1.1",
-    "next": "^16.0.3",
+    "next": "^16.3.6",
     "next-seo": "^6.5.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-intersection-observer": "^9.14.0",
     "sass": "^1.77.8",
-    "sharp": "^0.33.5",
-    "styled-components": "^6.1.12"
+    "sharp": "^0.35.4",
+    "styled-components": "6.1.12"
+  },
+  "overrides": {
+    "styled-components": {
+      "postcss": "^8.5.28"
+    }
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",
@@ -51,7 +59,7 @@
     "@types/use-sync-external-store": "^1.5.0",
     "babel-plugin-styled-components": "^2.1.4",
     "eslint": "^9.39.1",
-    "eslint-config-next": "^16.0.3",
+    "eslint-config-next": "^16.3.6",
     "next-sitemap": "^4.2.3",
     "prettier": "^3.3.3",
     "typescript": "^5"

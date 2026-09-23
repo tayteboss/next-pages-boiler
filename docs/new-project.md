@@ -2,9 +2,9 @@
 
 Checklist for starting a project from this boilerplate:
 
-1. Fill out the Project Context template below and paste it into `CLAUDE.md`
-2. Copy `.env.example` → `.env` and set Sanity/Mux/site vars
-3. Update hardcoded `projectId` in `scripts/api.js`; create the `json/` directory (buildJson writes there)
+1. Fill out the Project Context template below and paste it into `AGENTS.md`
+2. Copy `.env.example` → `.env.local` and set Sanity/Mux/site vars. Keep private tokens server-only (`SANITY_API_TOKEN`, `DATOCMS_API_TOKEN`); never prefix them with `NEXT_PUBLIC_`.
+3. `buildJson` uses the same Sanity environment variables as the app and creates `json/` automatically. If Sanity is unavailable, it keeps cached settings or writes empty defaults so this step does not block builds. Without a Sanity project/dataset, project routes return 404.
 4. Set colours/fonts in `styles/theme.tsx`, load fonts in `styles/fonts.css`, sync CSS vars + type scale in `styles/global.tsx`
 5. Replace favicon set — `_document.js` expects `/favicon/*` files (`favicon-96x96.png`, `favicon.svg`, `apple-touch-icon.png`, `site.webmanifest`) which aren't in `public/` yet; add `public/og.jpg`
 6. Set `SITE_URL` + `NEXT_PUBLIC_ENVIRONMENT` for sitemap/robots (staging/development get `disallow: /`)
@@ -12,7 +12,7 @@ Checklist for starting a project from this boilerplate:
 
 ## Project Context template
 
-Paste into `CLAUDE.md` and fill out; delete rows that don't apply.
+Paste into `AGENTS.md` and fill out; delete rows that don't apply.
 
 ```markdown
 ## Project Context

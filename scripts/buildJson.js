@@ -1,5 +1,6 @@
-/* eslint-disable no-use-before-define */
-/* eslint-disable global-require */
+const { loadEnvConfig } = require('@next/env');
+loadEnvConfig(process.cwd());
+
 const api = require('./api');
 
 const buildSiteData = async () => {

@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import type { GetStaticPaths, GetStaticProps } from "next";
 import client from "../../client";
 import { ProjectType, TransitionsType } from "../../shared/types/types";
 import { motion } from "framer-motion";
@@ -30,34 +31,50 @@ const Page = (props: Props) => {
 
 export async function getStaticPaths() {
   const projectsQuery = `
-		*[_type == 'project'] [0...100] {
+		*[_type == 'project' && defined(slug.current)] [0...100] {
 			slug
 		}
 	`;
 
-  const allProjects = await client.fetch(projectsQuery);
+  const allProjects = client
+    ? await client.fetch<ProjectType[]>(projectsQuery)
+    : [];
 
   return {
-    paths: allProjects.map((item: any) => {
-      return `/work/${item?.slug?.current}`;
-    }),
-    fallback: true,
-  };
+    paths: allProjects
+      .filter((item) => item.slug.current && !item.slug.current.includes("/"))
+      .map((item) => ({ params: { slug: item.slug.current } })),
+    fallback: "blocking",
+  } satisfies Awaited<ReturnType<GetStaticPaths>>;
 }
 
-export async function getStaticProps({ params }: any) {
+export const getStaticProps: GetStaticProps<
+  { data: ProjectType },
+  { slug: string }
+> = async ({ params }) => {
+  if (!client || !params?.slug) {
+    return { notFound: true, revalidate: 60 };
+  }
+
   const projectQuery = `
-		*[_type == 'project' && slug.current == "${params.slug[0]}"][0] {
+		*[_type == 'project' && slug.current == $slug][0] {
 			...,
 		}
 	`;
-  const data = await client.fetch(projectQuery);
+  const data = await client.fetch<ProjectType | null>(projectQuery, {
+    slug: params.slug,
+  });
+
+  if (!data) {
+    return { notFound: true, revalidate: 60 };
+  }
 
   return {
     props: {
       data,
     },
+    revalidate: 60,
   };
-}
+};
 
 export default Page;

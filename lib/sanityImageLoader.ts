@@ -19,6 +19,9 @@ export default function imageLoader({
   width: number;
   quality?: number;
 }): string {
+  // Local/static images have no CDN transformations; return their original URL.
+  if (!/^https?:\/\//i.test(src)) return src;
+
   const url = new URL(src);
 
   // Handle Sanity CDN URLs

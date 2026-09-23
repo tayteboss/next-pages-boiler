@@ -1,7 +1,12 @@
 export type MediaType = {
   mediaType: "video" | "image";
-  video: { asset: { playbackId: string } };
-  image: {
+  video?: {
+    asset: {
+      playbackId: string;
+      data?: { aspect_ratio?: string };
+    };
+  };
+  image?: {
     asset: {
       url: string;
       metadata: {

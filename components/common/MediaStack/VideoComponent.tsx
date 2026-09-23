@@ -4,7 +4,8 @@ import { MediaType } from "../../../shared/types/types";
 import { AnimatePresence, motion, easeIn, easeOut } from "framer-motion";
 import Image from "next/image";
 import { useState, useRef, useEffect, useCallback } from "react";
-import useWindowDimensions from "../../../hooks/useWindowDimensions";
+import useMediaQuery from "../../../hooks/useMediaQuery";
+import ratioToPadding from "../../../utils/ratioToPadding";
 
 const VideoComponentWrapper = styled.div`
   position: relative;
@@ -82,7 +83,7 @@ const VideoComponent = (props: Props) => {
     inView,
     isPriority,
     noFadeInAnimation,
-    lazyLoad,
+    lazyLoad = true,
     minResolution,
     aspectPadding,
   } = props;
@@ -90,11 +91,15 @@ const VideoComponent = (props: Props) => {
   const [hasRenderedFrame, setHasRenderedFrame] = useState(noFadeInAnimation);
   const playerRef = useRef<any>(null);
 
-  const isMobile = useWindowDimensions().width < 768 && !!useMobileData;
+  const isMobile = useMediaQuery("(max-width: 767px)");
+  const selectedData = isMobile && useMobileData?.video?.asset?.playbackId
+    ? useMobileData
+    : data;
+  const resolvedPadding = aspectPadding
+    ?? ratioToPadding(selectedData?.video?.asset?.data?.aspect_ratio)
+    ?? "56.25%";
 
-  const playbackId = isMobile
-    ? useMobileData?.video?.asset?.playbackId
-    : data?.video?.asset?.playbackId;
+  const playbackId = selectedData?.video?.asset?.playbackId;
   const posterUrl = playbackId
     ? `https://image.mux.com/${playbackId}/thumbnail.png?width=214&height=121&time=1`
     : undefined;
@@ -132,7 +137,7 @@ const VideoComponent = (props: Props) => {
   return (
     <VideoComponentWrapper
       className="media-stack"
-      style={aspectPadding ? { paddingTop: aspectPadding } : undefined}
+      style={{ paddingTop: resolvedPadding }}
     >
       {!noFadeInAnimation && posterUrl && (
         <AnimatePresence>
@@ -170,8 +175,8 @@ const VideoComponent = (props: Props) => {
             autoPlay="muted"
             loop={true}
             thumbnailTime={1}
-            loading={lazyLoad ? "viewport" : "page"}
-            preload="auto"
+            loading={isPriority || !lazyLoad ? "page" : "viewport"}
+            preload={isPriority || !lazyLoad ? "auto" : "metadata"}
             muted
             playsInline={true}
             minResolution={minResolution}

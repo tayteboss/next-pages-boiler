@@ -13,6 +13,8 @@
 /.next/
 /out/
 /public/robots.txt
+/public/sitemap*.xml
+/json/siteSettings.json
 
 # production
 /build
@@ -27,7 +29,8 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
-.env*.local
+.env*
+!.env.example
 
 # vercel
 .vercel

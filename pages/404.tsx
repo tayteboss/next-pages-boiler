@@ -17,7 +17,7 @@ const Page = () => {
 			<NextSeo title="404 | Sorry we couldn't find that page" />
 			<LayoutWrapper>
 				<Inner>
-					<Title>Sorry, we couldn't find that page</Title>
+						<Title>Sorry, we couldn&apos;t find that page</Title>
 				</Inner>
 			</LayoutWrapper>
 		</PageWrapper>

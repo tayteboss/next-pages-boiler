@@ -11,12 +11,12 @@ const MediaQueryContainer = (props: Props) => {
 
 	const showChildren = useMediaQuery(query);
 
-	return showChildren ? { children } : null;
+	return showChildren ? <>{children}</> : null;
 }
 
 export default MediaQueryContainer;
 
 // EXAMPLE USAGE
-// <MediaQueryContainer query={`media ${theme.mediaBreakpoints.tabletPortrait}`}>
+// <MediaQueryContainer query={theme.mediaBreakpoints.tabletPortrait}>
 //	<Component />
 // </MediaQueryContainer>;

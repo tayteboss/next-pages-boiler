@@ -1,13 +1,15 @@
+import { useEffect } from 'react';
+
 const useNoScroll = (addNoScroll: boolean) => {
-	const html: HTMLElement | null = document.querySelector('html');
-
-	if (!html) return;
-
-	if (addNoScroll) {
+	useEffect(() => {
+		if (!addNoScroll) return;
+		const html = document.documentElement;
+		const wasLocked = html.classList.contains('no-scroll');
 		html.classList.add('no-scroll');
-	} else {
-		html.classList.remove('no-scroll');
-	}
+		return () => {
+			if (!wasLocked) html.classList.remove('no-scroll');
+		};
+	}, [addNoScroll]);
 };
 
 export default useNoScroll;
